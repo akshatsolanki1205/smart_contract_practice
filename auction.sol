@@ -3,7 +3,6 @@
 pragma solidity ^0.8.9;
 
 contract auction {
-
     //auctioneer and item
     address public owner;
     string public item;
@@ -20,7 +19,7 @@ contract auction {
     }
 
     //history of bidding
-    mapping (address => uint) public total;
+    mapping(address => uint) public total;
 
     // auction still open
     bool public bidding = true;
@@ -32,22 +31,32 @@ contract auction {
     event newBid(address bidder, uint bid);
 
     // bid
-    function bid() payable public {
-        require(msg.value > highestbid.amount , "your bid is not the highest");
+    function bid() public payable {
+        require(msg.value > highestbid.amount, "your bid is not the highest");
         highestbid.bidder = msg.sender;
-        highestbid.amount += msg.value;
         total[msg.sender] += msg.value;
+        highestbid.amount = total[msg.sender];
         emit newBid(msg.sender, msg.value);
     }
 
-    // end auction 
-    function end() payable public {
-        require(msg.sender == owner, "only actioneer can end the auction");
-        
+    //check your bid
+    function myBid() public view returns (uint) {
+        return total[msg.sender];
     }
 
-    
-    
+    // end auction
+    function end() public {
+        require(msg.sender == owner, "only actioneer can end the auction");
+        bidding = false;
+    }
 
-
+    // withdraw
+    function withdraw() public payable {
+        require(bidding == false, "bidding hasn't ended yet");
+        require(
+            msg.sender != highestbid.bidder,
+            "you can't withdraw your are the winner"
+        );
+        payable(msg.sender).transfer(total[msg.sender]);
+    }
 }
