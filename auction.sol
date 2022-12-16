@@ -22,9 +22,6 @@ contract auction {
     //history of bidding
     mapping (address => uint) public total;
 
-    //every bidder
-    address[] public participants;
-
     // auction still open
     bool public bidding = true;
 
@@ -40,19 +37,14 @@ contract auction {
         highestbid.bidder = msg.sender;
         highestbid.amount += msg.value;
         total[msg.sender] += msg.value;
-        
         emit newBid(msg.sender, msg.value);
     }
 
     // end auction 
     function end() payable public {
         require(msg.sender == owner, "only actioneer can end the auction");
-        bidding = false;
         
-
     }
-
-    
 
     
     
